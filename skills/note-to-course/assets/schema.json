@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://note-to-course/schemas/content.json",
+  "title": "Note-to-Course Content Pack",
+  "description": "一个学习主题的完整内容包契约。技能包 note-to-course 生成此格式,渲染引擎消费此格式。这是两者的唯一耦合点。",
+  "type": "object",
+  "required": ["schema_version", "topic", "prerequisites", "knowledge_points"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema 版本。渲染引擎按此版本兼容性渲染。破坏性变更递增主版本。"
+    },
+    "topic": {
+      "type": "string",
+      "description": "主题名称,如 'Rust 所有权'。",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "prerequisites": {
+      "type": "array",
+      "description": "学习本主题前应掌握的前置主题,用于显示前置提示。",
+      "items": { "type": "string" }
+    },
+    "knowledge_points": {
+      "type": "array",
+      "description": "知识点列表,按 DAG 拓扑顺序排列。",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/knowledgePoint" }
+    }
+  },
+
+  "$defs": {
+    "knowledgePoint": {
+      "type": "object",
+      "required": ["id", "title", "objective", "depends_on", "estimated_minutes", "code", "trace", "teaching", "animations"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "知识点标识符,snake_case。如 move_semantics。"
+        },
+        "title": {
+          "type": "string",
+          "description": "知识点标题,如 'Move 语义'。",
+          "minLength": 1
+        },
+        "objective": {
+          "type": "string",
+          "description": "教学目标——这个知识点要教会什么。一句话。是后续所有阶段的依据。",
+          "minLength": 1
+        },
+        "depends_on": {
+          "type": "array",
+          "description": "依赖的前置知识点 id 列表。构成 DAG。",
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+        },
+        "estimated_minutes": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 60,
+          "description": "预估学习时长(分钟)。概念型 15-25,逻辑型 25-40。"
+        },
+        "code": { "$ref": "#/$defs/codeExample" },
+        "trace": {
+          "type": "array",
+          "description": "逐行执行的帧序列。空行/注释行不产生帧。",
+          "items": { "$ref": "#/$defs/traceFrame" }
+        },
+        "teaching": { "$ref": "#/$defs/teachingContent" },
+        "animations": {
+          "type": "array",
+          "description": "动画引用。可为空数组(纯概念无动画)。",
+          "items": { "$ref": "#/$defs/animationRef" }
+        }
+      }
+    },
+
+    "codeExample": {
+      "type": "object",
+      "description": "为教学目的定制的代码示例。",
+      "required": ["language", "lines", "verifiable"],
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "编程语言,如 rust/python/javascript。",
+          "minLength": 1
+        },
+        "lines": {
+          "type": "array",
+          "description": "代码行数组,每行一个元素(不含换行符)。",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "verifiable": {
+          "type": "boolean",
+          "description": "是否可自动验证。true=可运行比对 stdout;false=需走编译错误比对或人工审核。"
+        },
+        "error_type": {
+          "type": "string",
+          "enum": ["compile_error", "runtime_error"],
+          "description": "当 verifiable=false 时,错误的类型。compile_error 用于 Rust 借用等编译期教学。"
+        },
+        "expected_error": {
+          "type": "string",
+          "description": "当 error_type 存在时,预期的错误信息片段。验证时检查实际错误是否包含此子串。"
+        },
+        "expected_output": {
+          "type": "array",
+          "description": "当 verifiable=true 时,代码运行的预期 stdout(每行一个元素)。用于自动验证。",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "traceFrame": {
+      "type": "object",
+      "description": "一个执行帧,对应一行代码。",
+      "required": ["line", "variables", "output", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "line": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "代码行号(对应 code.lines 数组的索引+1)。"
+        },
+        "variables": {
+          "type": "object",
+          "description": "当前行执行后的变量状态。键=变量名,值=字符串表示。",
+          "additionalProperties": { "type": "string" }
+        },
+        "output": {
+          "type": "array",
+          "description": "当前行产生的 stdout 输出。",
+          "items": { "type": "string" }
+        },
+        "description": {
+          "type": "string",
+          "description": "一句话描述当前行的语义操作。",
+          "minLength": 1
+        }
+      }
+    },
+
+    "teachingContent": {
+      "type": "object",
+      "description": "讲解、练习、卡片。",
+      "required": ["explanation", "exercises", "flashcards"],
+      "additionalProperties": false,
+      "properties": {
+        "explanation": {
+          "type": "object",
+          "required": ["summary", "analogy", "pitfalls"],
+          "additionalProperties": false,
+          "properties": {
+            "summary": { "type": "string", "description": "一句话定义。" },
+            "analogy": { "type": "string", "description": "生活类比,帮助直觉理解。" },
+            "pitfalls": {
+              "type": "array",
+              "description": "常见误区列表。",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "exercises": {
+          "type": "array",
+          "description": "练习题。至少 2 道,建议包含不同类型。",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/exercise" }
+        },
+        "flashcards": {
+          "type": "array",
+          "description": "记忆卡片,用于 SM-2 间隔重复。",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/flashcard" }
+        }
+      }
+    },
+
+    "exercise": {
+      "type": "object",
+      "description": "练习题。",
+      "required": ["type"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "type": {
+          "type": "string",
+          "enum": ["choice", "prediction", "fill", "fix"],
+          "description": "题型:choice=选择,prediction=预测输出,fill=补全代码,fix=改错。"
+        },
+        "prompt": { "type": "string", "description": "题干。" },
+        "options": {
+          "type": "array",
+          "description": "选项(choice/prediction 题需要)。",
+          "items": { "type": "string" }
+        },
+        "answer": {
+          "description": "答案。choice/prediction 为选项索引(number);fill/fix 为答案文本(string)。",
+          "oneOf": [
+            { "type": "integer", "minimum": 0 },
+            { "type": "string", "minLength": 1 }
+          ]
+        },
+        "explanation": { "type": "string", "description": "答案解析,答错时展示。" }
+      }
+    },
+
+    "flashcard": {
+      "type": "object",
+      "description": "记忆卡片。",
+      "required": ["type"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "type": {
+          "type": "string",
+          "enum": ["qa", "code_fill"],
+          "description": "qa=正反卡片(概念);code_fill=代码填空(技能)。"
+        },
+        "front": { "type": "string", "description": "qa 卡片:正面问题。" },
+        "back": { "type": "string", "description": "qa 卡片:背面答案。" },
+        "code": { "type": "string", "description": "code_fill 卡片:挖空代码。" },
+        "blank": { "type": "string", "description": "code_fill 卡片:空位标记。" },
+        "answer": { "type": "string", "description": "code_fill 卡片:填空答案。" }
+      }
+    },
+
+    "animationRef": {
+      "type": "object",
+      "description": "动画引用。指向 trace 某帧叠加概念动画。",
+      "required": ["trace_frame", "template"],
+      "additionalProperties": false,
+      "properties": {
+        "trace_frame": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "关联的 trace 帧号(trace 数组的索引+1)。"
+        },
+        "template": {
+          "type": "string",
+          "enum": ["move", "copy", "reference", "stack", "lifetime", "custom"],
+          "description": "动画模板。custom 表示需要定制组件。"
+        },
+        "component": {
+          "type": "string",
+          "description": "当 template=custom 时,定制组件名(如 bar-chart-sort)。"
+        },
+        "params": {
+          "type": "object",
+          "description": "模板参数。如 {from:'a', to:'b', value:'vec![1,2,3]'}。",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

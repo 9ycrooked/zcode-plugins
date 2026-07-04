@@ -1,0 +1,36 @@
+{
+  "name": "siyuan-sisyphus",
+  "version": "0.1.0",
+  "description": "SiYuan Note (思源笔记) MCP 集成插件 — 提供块/文档/搜索/数据库/模板/闪卡等完整能力。",
+  "author": {
+    "name": "Y"
+  },
+  "license": "MIT",
+  "skills": "skills",
+  "mcpServers": {
+    "siyuan-sisyphus": {
+      "type": "http",
+      "url": "http://127.0.0.1:36806/mcp",
+      "headers": {
+        "Authorization": "Bearer 0f2fa9d18b66f37127698a52633e5c95724f1bd8448878ecee3d4de793eee59f"
+      }
+    }
+  },
+  "userConfig": {
+    "siyuan_host": {
+      "type": "string",
+      "default": "127.0.0.1",
+      "description": "思源笔记服务地址，默认本地。"
+    },
+    "siyuan_port": {
+      "type": "string",
+      "default": "36806",
+      "description": "思源笔记 MCP 服务端口。"
+    },
+    "siyuan_token": {
+      "type": "string",
+      "default": "",
+      "description": "思源笔记 API Token（为空则使用插件内置默认值）。"
+    }
+  }
+}
