@@ -1,6 +1,6 @@
 {
   "name": "siyuan-sisyphus",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "SiYuan Note (思源笔记) MCP 集成插件 — 提供块/文档/搜索/数据库/模板/闪卡等完整能力。",
   "author": {
     "name": "Y"
@@ -15,8 +15,8 @@
         "D:\\Notes/data/plugins/siyuan-plugins-mcp-sisyphus/mcp-server.cjs"
       ],
       "env": {
-        "SIYUAN_API_URL": "http://127.0.0.1:6806",
-        "SIYUAN_TOKEN": "7lf2guqeiza5tz0z"
+        "SIYUAN_API_URL": "http://{{userConfig.siyuan_host}}:6806",
+        "SIYUAN_TOKEN": "{{userConfig.siyuan_token}}"
       }
     }
   },
@@ -35,7 +35,7 @@
     "siyuan_token": {
       "type": "string",
       "default": "",
-      "description": "思源笔记 API Token（为空则使用插件内置默认值）。"
+      "description": "思源笔记 API Token（必填，在思源笔记 设置→API Token 中获取）。"
     }
   }
 }
