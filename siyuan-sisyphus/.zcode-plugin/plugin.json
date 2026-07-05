@@ -1,6 +1,6 @@
 {
   "name": "siyuan-sisyphus",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "SiYuan Note (思源笔记) MCP 集成插件 — 提供块/文档/搜索/数据库/模板/闪卡等完整能力。",
   "author": {
     "name": "Y"

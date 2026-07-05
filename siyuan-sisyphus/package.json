@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "siyuan-sisyphus-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "license": "MIT",
   "description": "SiYuan Note (思源笔记) MCP 集成插件 — 通过 HTTP MCP server 提供块/文档/搜索/数据库/模板/闪卡等完整能力。"
