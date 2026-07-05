@@ -10,13 +10,10 @@
   
   "mcpServers": {
     "siyuan-sisyphus": {
-      "command": "node",
-      "args": [
-        "D:\\Notes/data/plugins/siyuan-plugins-mcp-sisyphus/mcp-server.cjs"
-      ],
-      "env": {
-        "SIYUAN_API_URL": "http://{{userConfig.siyuan_host}}:6806",
-        "SIYUAN_TOKEN": "{{userConfig.siyuan_token}}"
+      "type": "http",
+      "url": "http://127.0.0.1:36806/mcp",
+      "headers": {
+        "Authorization": "Bearer 0f2fa9d18b66f37127698a52633e5c95724f1bd8448878ecee3d4de793eee59f"
       }
     }
   },
